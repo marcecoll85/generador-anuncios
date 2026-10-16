@@ -408,4 +408,167 @@ aside { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); displ
         photoURL = url; photoName = file.name; photoFile = file;
         if (cutoutURL) { URL.revokeObjectURL(cutoutURL); cutoutURL = null; }
         $("bgRemove").checked = false; $("bgRemove").disabled = false;
-        $("bgWrap").classList.remove("off"); 
+        $("bgWrap").classList.remove("off"); $("bgBox").hidden = true;
+        showPhoto();
+        $("photoTitle").textContent = "Foto cargada";
+        hint.textContent = file.name + " · " + img.naturalWidth + " × " + img.naturalHeight + " px. Tocá para cambiarla.";
+        if (img.naturalWidth < 800 || img.naturalHeight < 800) hint.textContent += " Es chica: puede verse borrosa.";
+      } else {
+        if (logoURL) URL.revokeObjectURL(logoURL);
+        logoURL = url;
+        big.alt = "Logo";
+        $("pvLogo").innerHTML = ""; $("pvLogo").appendChild(big);
+        $("pvLogo").hidden = false; $("pvBrand").hidden = true;
+        $("logoTitle").textContent = "Logo cargado";
+        hint.textContent = file.name + ". Tocá para cambiarlo.";
+      }
+    };
+    img.onerror = function () {
+      hint.textContent = "No se pudo abrir la imagen. Probá con otra.";
+      hint.style.color = "var(--danger)";
+    };
+    img.src = url;
+  }
+  // Borrar fondo: herramienta de código abierto (@imgly/background-removal, licencia AGPL)
+  // que funciona dentro del navegador. La primera vez descarga el modelo (unos 80 MB) y queda guardado.
+  var photoFile = null, cutoutURL = null, removing = false;
+  var BG_LIB = "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.8/+esm";
+
+  function showPhoto() {
+    var useCut = $("bgRemove").checked && cutoutURL;
+    var img = document.createElement("img");
+    img.alt = "Foto del producto";
+    img.src = useCut ? cutoutURL : photoURL;
+    $("pvPhoto").innerHTML = ""; $("pvPhoto").appendChild(img);
+    $("ad").classList.toggle("cutout", !!useCut);
+  }
+  function bgMsg(text, isErr, pct) {
+    $("bgBox").hidden = false;
+    $("bgStatus").textContent = text;
+    $("bgStatus").classList.toggle("err", !!isErr);
+    $("bgBar").style.width = (pct == null ? 0 : pct) + "%";
+    $("bgBar").parentNode.hidden = pct == null;
+  }
+  function removeBackground() {
+    if (cutoutURL) { showPhoto(); bgMsg("Fondo borrado.", false, null); return; }
+    if (removing || !photoFile) return;
+    removing = true;
+    $("bgRemove").disabled = true;
+    bgMsg("Preparando la herramienta…", false, 2);
+    var fileAtStart = photoFile;
+    import(BG_LIB).then(function (mod) {
+      var fn = mod.removeBackground || mod.default;
+      return fn(fileAtStart, {
+        progress: function (key, current, total) {
+          if (/fetch/.test(key) && total) {
+            bgMsg("Descargando la herramienta (solo la primera vez)… " + Math.round(current / total * 100) + "%", false, Math.round(current / total * 90));
+          } else if (/compute|inference/.test(key)) {
+            bgMsg("Borrando el fondo… puede tardar unos segundos.", false, 95);
+          }
+        }
+      });
+    }).then(function (blob) {
+      if (fileAtStart !== photoFile) return;
+      cutoutURL = URL.createObjectURL(blob);
+      bgMsg("Fondo borrado. Si el recorte no quedó bien, desactivá la opción para volver a la foto original.", false, null);
+      showPhoto();
+    }).catch(function (err) {
+      console.error(err);
+      $("bgRemove").checked = false;
+      bgMsg("No se pudo borrar el fondo. Revisá tu conexión a internet y volvé a intentar. Si sigue fallando, probá con Chrome o Edge.", true, null);
+      showPhoto();
+    }).then(function () {
+      removing = false;
+      $("bgRemove").disabled = false;
+    });
+  }
+  $("bgRemove").addEventListener("change", function () {
+    if (this.checked) removeBackground();
+    else { showPhoto(); $("bgBox").hidden = true; }
+  });
+
+  $("photo").addEventListener("change", function () { loadImage(this.files[0], "photo"); });
+  $("logo").addEventListener("change", function () { loadImage(this.files[0], "logo"); });
+  [["drop", "photo"], ["dropLogo", "logo"]].forEach(function (pair) {
+    var d = $(pair[0]);
+    d.addEventListener("dragover", function (e) { e.preventDefault(); d.classList.add("over"); });
+    d.addEventListener("dragleave", function () { d.classList.remove("over"); });
+    d.addEventListener("drop", function (e) {
+      e.preventDefault(); d.classList.remove("over");
+      loadImage(e.dataTransfer.files[0], pair[1]);
+    });
+  });
+
+  // Movimiento y música: sin movimiento sale una imagen, y una imagen no lleva música.
+  function syncMotion() {
+    var on = $("motion").checked;
+    $("music").disabled = !on;
+    if (!on) $("music").checked = false;
+    $("musicWrap").classList.toggle("off", !on);
+    $("motionHint").textContent = on
+      ? "Sale un video MP4 de unos 6 segundos, con zoom y animaciones."
+      : "Sale una imagen JPG fija, sin animación.";
+    $("musicHint").textContent = on
+      ? "Solo pistas con licencia libre para uso comercial."
+      : "La música solo está disponible con movimiento.";
+  }
+  $("motion").addEventListener("change", syncMotion);
+
+  // Botón Generar: por ahora valida y muestra los datos exactos (la generación es la Etapa 3).
+  $("form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var box = $("result");
+    var errors = [];
+    var formats = Array.prototype.map.call(document.querySelectorAll('input[name="fmt"]:checked'), function (c) { return c.value; });
+    if (!photoURL) errors.push("Falta la foto del producto.");
+    if (removing) errors.push("Esperá a que termine de borrarse el fondo.");
+    if ($("product").value.trim() === "") errors.push("Falta el nombre del producto.");
+    if ($("price").value.trim() === "") errors.push("Falta el precio.");
+    if ($("cta").value === "__otra" && $("ctaCustom").value.trim() === "") errors.push("Escribí tu llamada a la acción o elegí una de la lista.");
+    if (formats.length === 0) errors.push("Marcá al menos un formato.");
+
+    box.hidden = false;
+    box.innerHTML = "";
+    if (errors.length) {
+      box.className = "msg err";
+      var ul = document.createElement("ul");
+      ul.style.margin = "0"; ul.style.paddingLeft = "18px";
+      errors.forEach(function (t) { var li = document.createElement("li"); li.textContent = t; ul.appendChild(li); });
+      box.appendChild(ul);
+      return;
+    }
+    box.className = "msg ok";
+    var h = document.createElement("h3");
+    h.textContent = "Datos listos. Así se van a usar:";
+    box.appendChild(h);
+    var dl = document.createElement("dl");
+    var style = document.querySelector('input[name="style"]:checked').value;
+    [
+      ["Foto", photoName],
+      ["Fondo", cutoutURL && $("bgRemove").checked ? "borrado" : "foto original"],
+      ["Logo", logoURL ? "sí" : "(sin logo, se usa el nombre de la marca)"],
+      ["Producto", "«" + $("product").value + "»"],
+      ["Marca", $("brand").value ? "«" + $("brand").value + "»" : "(sin marca)"],
+      ["Precio", "«" + $("price").value + "»"],
+      ["Frase", $("phrase").value ? "«" + $("phrase").value + "»" : "(sin frase)"],
+      ["Llamada", "«" + ctaText() + "»"],
+      ["Estilo", style],
+      ["Salida", $("motion").checked ? "Video MP4" + ($("music").checked ? " con música" : " sin música") : "Imagen JPG"],
+      ["Formatos", formats.join(", ")]
+    ].forEach(function (row) {
+      var dt = document.createElement("dt"); dt.textContent = row[0];
+      var dd = document.createElement("dd"); dd.textContent = row[1];
+      dl.appendChild(dt); dl.appendChild(dd);
+    });
+    box.appendChild(dl);
+    var p = document.createElement("p");
+    p.textContent = "La creación del archivo descargable se agrega en la Etapa 3. Por ahora este botón solo comprueba que no falte nada.";
+    box.appendChild(p);
+  });
+
+  update();
+  syncMotion();
+})();
+</script>
+</body>
+</html>

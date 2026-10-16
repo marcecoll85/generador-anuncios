@@ -7,7 +7,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600&family=JetBrains+Mono:wght@500&display=swap">
 <style>
 /* Layout: barra superior + formulario por pasos a la izquierda, vista previa del anuncio fija a la derecha (arriba en celular) */
 :root {
@@ -115,6 +115,10 @@ input[type="text"]:focus, select:focus { outline: none; border-color: var(--acce
 .switch input:focus-visible + .track { outline: 3px solid var(--accent); outline-offset: 2px; }
 .switch input:disabled + .track { opacity: .45; }
 .switch.off { opacity: .55; cursor: not-allowed; }
+.bgstatus { font-size: 0.85rem; color: var(--muted); }
+.bgstatus.err { color: var(--danger); }
+.bar { height: 6px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .2s; }
 
 .formats { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
 .fmt span { flex-direction: row; align-items: center; gap: 12px; }
@@ -143,31 +147,50 @@ aside { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); displ
 .pv-label { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.85rem; color: var(--muted); font-weight: 600; }
 .pv-label code { font-family: var(--mono); font-size: 0.75rem; }
 
+/* El anuncio: foto a pantalla completa, logo arriba, degradé y textos abajo.
+   Sus colores son fijos por estilo porque forman parte de la imagen final. */
 .ad {
-  --ad-bg: #2346d8; --ad-fg: #ffffff; --ad-sub: rgb(255 255 255 / .8);
-  --ad-price-bg: #ffcf3f; --ad-price-fg: #141922; --ad-cta-bg: #ffffff; --ad-cta-fg: #2346d8; --ad-font: var(--display);
-  width: 100%; max-width: 100%; aspect-ratio: 9 / 16; container-type: inline-size;
-  border-radius: 18px; overflow: hidden; background: var(--ad-bg); color: var(--ad-fg);
-  display: grid; grid-template-rows: auto minmax(0, 1fr) auto auto auto auto; gap: 3cqw;
-  padding: 8cqw 7cqw; box-shadow: 0 18px 40px -18px rgb(0 0 0 / .45);
+  --ad-shade: #1c6b6e; --ad-hl: rgb(138 109 47 / .92); --ad-hl-fg: #ffffff;
+  --ad-text: #ffffff; --ad-tshadow: 0 0.5cqw 1.6cqw rgb(0 0 0 / .45);
+  --ad-price-bg: #ffffff; --ad-price-fg: #1c6b6e; --ad-brand: #1c6b6e;
+  --ad-cta-bg: #ffffff; --ad-cta-fg: #1c6b6e; --ad-head: "Figtree", "Segoe UI", sans-serif;
+  position: relative; width: 100%; max-width: 100%; aspect-ratio: 9 / 16; container-type: inline-size;
+  border-radius: 18px; overflow: hidden; background: #d9dde2;
+  box-shadow: 0 18px 40px -18px rgb(0 0 0 / .45);
 }
-.ad[data-style="elegante"] { --ad-bg: radial-gradient(circle at 50% 35%, #2b2620, #0e0d0b 70%); --ad-fg: #f3ead8; --ad-sub: #cdbb95; --ad-price-bg: transparent; --ad-price-fg: #d9b56a; --ad-cta-bg: #d9b56a; --ad-cta-fg: #0e0d0b; --ad-font: "Fraunces", Georgia, serif; }
-.ad[data-style="tecnologico"] { --ad-bg: linear-gradient(160deg, #06122e, #0a2a52); --ad-fg: #e8f6ff; --ad-sub: #7fd8ff; --ad-price-bg: #3de0ff; --ad-price-fg: #04112a; --ad-cta-bg: transparent; --ad-cta-fg: #3de0ff; }
-.ad[data-style="moderno"] { }
-.ad[data-style="minimalista"] { --ad-bg: #f5f5f2; --ad-fg: #151515; --ad-sub: #6d6d68; --ad-price-bg: transparent; --ad-price-fg: #151515; --ad-cta-bg: #151515; --ad-cta-fg: #f5f5f2; }
-.ad[data-style="llamativo"] { --ad-bg: #ff3b2f; --ad-fg: #ffffff; --ad-sub: #fff3c2; --ad-price-bg: #ffe14d; --ad-price-fg: #c4140a; --ad-cta-bg: #141922; --ad-cta-fg: #ffe14d; }
+.ad { --ad-backdrop: radial-gradient(circle at 50% 38%, #ffffff 0%, #d6e8e8 55%, #9cc3c4 100%); }
+.ad[data-style="elegante"] { --ad-backdrop: radial-gradient(circle at 50% 38%, #4a4136 0%, #1c1915 60%, #0e0d0b 100%); }
+.ad[data-style="tecnologico"] { --ad-backdrop: radial-gradient(circle at 50% 38%, #2a5590 0%, #0c2148 60%, #06122e 100%); }
+.ad[data-style="minimalista"] { --ad-backdrop: radial-gradient(circle at 50% 38%, #ffffff 0%, #f1f1ee 60%, #e2e2de 100%); }
+.ad[data-style="llamativo"] { --ad-backdrop: radial-gradient(circle at 50% 38%, #ffe3df 0%, #ff8a7f 60%, #e5281c 100%); }
+.ad.cutout { background: var(--ad-backdrop); }
+.ad.cutout .ad-photo { inset: 20% 9% 34% 9%; }
+.ad.cutout .ad-photo img { object-fit: contain; filter: drop-shadow(0 3cqw 4cqw rgb(0 0 0 / .35)); }
+.ad[data-style="elegante"] { --ad-shade: #0e0d0b; --ad-hl: rgb(185 150 80 / .94); --ad-hl-fg: #ffffff; --ad-price-bg: #d9b56a; --ad-price-fg: #0e0d0b; --ad-brand: #6b5427; --ad-cta-bg: #0e0d0b; --ad-cta-fg: #d9b56a; --ad-head: "Fraunces", Georgia, serif; }
+.ad[data-style="tecnologico"] { --ad-shade: #06122e; --ad-hl: rgb(61 224 255 / .92); --ad-hl-fg: #04112a; --ad-price-bg: #3de0ff; --ad-price-fg: #04112a; --ad-brand: #0a2a52; --ad-cta-bg: #04112a; --ad-cta-fg: #3de0ff; }
+.ad[data-style="minimalista"] { --ad-shade: #ffffff; --ad-hl: #151515; --ad-hl-fg: #ffffff; --ad-text: #151515; --ad-tshadow: none; --ad-price-bg: #151515; --ad-price-fg: #ffffff; --ad-brand: #151515; --ad-cta-bg: #151515; --ad-cta-fg: #ffffff; }
+.ad[data-style="llamativo"] { --ad-shade: #c4140a; --ad-hl: rgb(255 225 77 / .96); --ad-hl-fg: #c4140a; --ad-price-bg: #ffe14d; --ad-price-fg: #c4140a; --ad-brand: #c4140a; --ad-cta-bg: #ffffff; --ad-cta-fg: #c4140a; }
 
-.ad-brand { font: 700 4.6cqw/1.2 var(--body); letter-spacing: .14em; text-transform: uppercase; color: var(--ad-sub); overflow-wrap: anywhere; }
-.ad-photo { min-height: 0; display: grid; place-items: center; }
-.ad-photo img { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 4cqw 5cqw rgb(0 0 0 / .35)); }
-.ad-ph { width: 70%; aspect-ratio: 1; max-height: 100%; border: 0.8cqw dashed currentColor; border-radius: 6cqw; display: grid; place-items: center; text-align: center; font: 600 4.2cqw/1.3 var(--body); opacity: .55; padding: 4cqw; }
-.ad-product { font: 800 8cqw/1.05 var(--ad-font); letter-spacing: -0.01em; overflow-wrap: anywhere; }
-.ad-price { justify-self: start; max-width: 100%; background: var(--ad-price-bg); color: var(--ad-price-fg); font: 800 13cqw/1 var(--ad-font); padding: 2cqw 4cqw; border-radius: 2.5cqw; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.ad[data-style="elegante"] .ad-price, .ad[data-style="minimalista"] .ad-price { padding-inline: 0; }
-.ad-phrase { font: 500 4.6cqw/1.35 var(--body); color: var(--ad-sub); overflow-wrap: anywhere; }
-.ad-cta { background: var(--ad-cta-bg); color: var(--ad-cta-fg); border: 0.6cqw solid var(--ad-cta-fg); border-radius: 99px; padding: 3.2cqw 4cqw; text-align: center; font: 700 4.8cqw/1.2 var(--body); overflow-wrap: anywhere; }
-.ad-cta::before { content: "● "; font-size: .8em; }
-.ad .empty { opacity: .45; font-style: italic; }
+.ad-photo { position: absolute; inset: 0; display: grid; place-items: center; }
+.ad-photo img { width: 100%; height: 100%; object-fit: cover; }
+.ad-ph { position: absolute; top: 34%; left: 50%; transform: translate(-50%, -50%); width: 52%; aspect-ratio: 1; border: 0.8cqw dashed #8a93a3; border-radius: 6cqw; display: grid; place-items: center; text-align: center; font: 600 4.4cqw/1.3 var(--body); color: #5a6475; }
+.ad-shade { position: absolute; left: 0; right: 0; bottom: 0; height: 64%;
+  background: linear-gradient(to top, var(--ad-shade) 0%, color-mix(in srgb, var(--ad-shade) 80%, transparent) 38%, transparent 100%); }
+
+.ad-top { position: absolute; top: 7cqw; left: 0; right: 0; display: flex; justify-content: center; padding-inline: 8cqw; }
+.ad-chip { background: rgb(255 255 255 / .88); border-radius: 3cqw; padding: 2.4cqw 4.5cqw; display: flex; align-items: center; justify-content: center; max-width: 100%; }
+.ad-chip img { max-width: 44cqw; max-height: 16cqw; object-fit: contain; display: block; }
+.ad-brand { font: 800 7.5cqw/1 var(--ad-head); color: var(--ad-brand); letter-spacing: -0.01em; text-align: center; overflow-wrap: anywhere; }
+
+.ad-bottom { position: absolute; left: 0; right: 0; bottom: 0; padding: 0 6cqw 8cqw; display: flex; flex-direction: column; gap: 2cqw; }
+.ad-product { font: 800 10.5cqw/1.16 var(--ad-head); letter-spacing: -0.01em; overflow-wrap: anywhere; }
+.ad-product span { background: var(--ad-hl); color: var(--ad-hl-fg); padding: 0 1.8cqw; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.ad-phrase { font: 800 7.4cqw/1.1 var(--ad-head); color: var(--ad-text); text-shadow: var(--ad-tshadow); overflow-wrap: anywhere; }
+.ad-row { display: flex; align-items: center; justify-content: space-between; gap: 3cqw; flex-wrap: wrap; margin-top: 2.5cqw; }
+.ad-price { background: var(--ad-price-bg); color: var(--ad-price-fg); font: 800 11cqw/1 var(--ad-head); padding: 2cqw 3.6cqw; border-radius: 2.4cqw; font-variant-numeric: tabular-nums; max-width: 100%; overflow-wrap: anywhere; box-shadow: 0 1cqw 3cqw rgb(0 0 0 / .25); }
+.ad-cta { background: var(--ad-cta-bg); color: var(--ad-cta-fg); border-radius: 99px; padding: 2.6cqw 4cqw; font: 700 4.2cqw/1.2 var(--body); overflow-wrap: anywhere; max-width: 100%; }
+.ad-cta::before { content: ""; display: inline-block; width: 2.6cqw; height: 2.6cqw; border-radius: 50%; background: #25d366; margin-right: 1.6cqw; vertical-align: 0.1em; }
+.ad .empty { opacity: .55; }
 .pv-note { font-size: 0.8rem; color: var(--muted); margin: 0; }
 
 @media (max-width: 820px) {
@@ -187,7 +210,7 @@ aside { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); displ
 <header class="top">
   <div class="top-inner">
     <div class="logo"><span class="logo-mark">$</span>Generador de Anuncios</div>
-    <div class="stage">Versión 0.2 · Etapas 1 y 2</div>
+    <div class="stage">Versión 0.4 · Etapas 1 y 2</div>
   </div>
 </header>
 
@@ -199,7 +222,7 @@ aside { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); displ
 
   <form id="form" novalidate>
     <fieldset>
-      <legend><span class="num">1</span>Foto del producto</legend>
+      <legend><span class="num">1</span>Foto y logo</legend>
       <label class="drop" id="drop" for="photo">
         <input type="file" id="photo" accept="image/jpeg,image/png,image/webp">
         <span class="thumb" id="thumb" aria-hidden="true">
@@ -210,6 +233,25 @@ aside { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); displ
           <span class="hint" id="photoHint">JPG, PNG o WEBP. Mejor con fondo liso y buena luz.</span>
         </span>
       </label>
+      <label class="drop" id="dropLogo" for="logo">
+        <input type="file" id="logo" accept="image/png,image/jpeg,image/webp">
+        <span class="thumb" id="thumbLogo" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/></svg>
+        </span>
+        <span>
+          <strong id="logoTitle">Logo de la marca (opcional)</strong>
+          <span class="hint" id="logoHint">Ideal PNG con fondo transparente. Si no subís logo, se escribe el nombre de la marca.</span>
+        </span>
+      </label>
+      <label class="switch off" id="bgWrap">
+        <input type="checkbox" id="bgRemove" disabled>
+        <span class="track"></span>
+        <span><span class="label">Borrar el fondo de la foto</span><br><span class="hint">El producto queda recortado sobre un fondo del color del estilo. Primero cargá la foto.</span></span>
+      </label>
+      <div id="bgBox" hidden>
+        <div class="bar"><i id="bgBar"></i></div>
+        <div class="bgstatus" id="bgStatus" role="status" aria-live="polite"></div>
+      </div>
     </fieldset>
 
     <fieldset>
@@ -217,11 +259,11 @@ aside { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); displ
       <div class="two">
         <div class="field">
           <label for="product">Nombre del producto <span class="req">*</span></label>
-          <input type="text" id="product" maxlength="40" placeholder="Perfume Aqua 100 ml" autocomplete="off">
+          <input type="text" id="product" maxlength="36" placeholder="Toallas intercaladas" autocomplete="off">
         </div>
         <div class="field">
           <label for="brand">Marca</label>
-          <input type="text" id="brand" maxlength="30" placeholder="Casa Nativa" autocomplete="off">
+          <input type="text" id="brand" maxlength="30" placeholder="SIH" autocomplete="off">
         </div>
       </div>
       <div class="field">
@@ -231,8 +273,8 @@ aside { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); displ
       </div>
       <div class="field">
         <label for="phrase">Frase publicitaria</label>
-        <input type="text" id="phrase" maxlength="70" placeholder="Frescura que dura todo el día" autocomplete="off">
-        <span class="count" id="phraseCount">0 / 70</span>
+        <input type="text" id="phrase" maxlength="60" placeholder="Higiene lista para tu baño o cocina comercial" autocomplete="off">
+        <span class="count" id="phraseCount">0 / 60</span>
       </div>
       <div class="field">
         <label for="cta">Llamada a la acción</label>
@@ -250,11 +292,11 @@ aside { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); displ
     <fieldset>
       <legend><span class="num">3</span>Estilo visual</legend>
       <div class="styles" role="radiogroup" aria-label="Estilo visual">
-        <label class="opt"><input type="radio" name="style" value="elegante"><span><span class="swatch" style="background:#14120f;color:#d9b56a">Aa</span>Elegante</span></label>
-        <label class="opt"><input type="radio" name="style" value="tecnologico"><span><span class="swatch" style="background:#0a2a52;color:#3de0ff">Aa</span>Tecnológico</span></label>
-        <label class="opt"><input type="radio" name="style" value="moderno" checked><span><span class="swatch" style="background:#2346d8;color:#ffcf3f">Aa</span>Moderno</span></label>
-        <label class="opt"><input type="radio" name="style" value="minimalista"><span><span class="swatch" style="background:#f5f5f2;color:#151515;border:1px solid #ccc">Aa</span>Minimalista</span></label>
-        <label class="opt"><input type="radio" name="style" value="llamativo"><span><span class="swatch" style="background:#ff3b2f;color:#ffe14d">Aa</span>Llamativo</span></label>
+        <label class="opt"><input type="radio" name="style" value="elegante"><span><span class="swatch" style="background:linear-gradient(#5d5850,#0e0d0b);color:#d9b56a">Aa</span>Elegante</span></label>
+        <label class="opt"><input type="radio" name="style" value="tecnologico"><span><span class="swatch" style="background:linear-gradient(#5d6c86,#06122e);color:#3de0ff">Aa</span>Tecnológico</span></label>
+        <label class="opt"><input type="radio" name="style" value="moderno" checked><span><span class="swatch" style="background:linear-gradient(#9fb5b6,#1c6b6e);color:#fff">Aa</span>Moderno</span></label>
+        <label class="opt"><input type="radio" name="style" value="minimalista"><span><span class="swatch" style="background:linear-gradient(#d6d6d2,#ffffff);color:#151515;border:1px solid #ccc">Aa</span>Minimalista</span></label>
+        <label class="opt"><input type="radio" name="style" value="llamativo"><span><span class="swatch" style="background:linear-gradient(#e0a39c,#c4140a);color:#ffe14d">Aa</span>Llamativo</span></label>
       </div>
     </fieldset>
 
@@ -290,12 +332,14 @@ aside { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); displ
   <aside aria-label="Vista previa">
     <div class="pv-label"><span>Vista previa</span><code>9:16</code></div>
     <div class="ad" id="ad" data-style="moderno">
-      <div class="ad-brand" id="pvBrand"></div>
       <div class="ad-photo" id="pvPhoto"><div class="ad-ph">Tu foto<br>va acá</div></div>
-      <div class="ad-product" id="pvProduct"></div>
-      <div class="ad-price" id="pvPrice"></div>
-      <div class="ad-phrase" id="pvPhrase"></div>
-      <div class="ad-cta" id="pvCta"></div>
+      <div class="ad-shade"></div>
+      <div class="ad-top"><div class="ad-chip"><div class="ad-brand" id="pvBrand"></div><div id="pvLogo" hidden></div></div></div>
+      <div class="ad-bottom">
+        <div class="ad-product"><span id="pvProduct"></span></div>
+        <div class="ad-phrase" id="pvPhrase"></div>
+        <div class="ad-row"><div class="ad-price" id="pvPrice"></div><div class="ad-cta" id="pvCta"></div></div>
+      </div>
     </div>
     <p class="pv-note">Los textos en gris son ejemplos. Se reemplazan por los tuyos al escribir.</p>
   </aside>
@@ -318,13 +362,13 @@ aside { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); displ
   }
 
   function update() {
-    show($("pvBrand"), $("brand").value, "Casa Nativa");
-    show($("pvProduct"), $("product").value, "Perfume Aqua 100 ml");
+    show($("pvBrand"), $("brand").value, "SIH");
+    show($("pvProduct"), $("product").value, "Toallas intercaladas");
     show($("pvPrice"), $("price").value, "$ 15.999");
-    show($("pvPhrase"), $("phrase").value, "Frescura que dura todo el día");
+    show($("pvPhrase"), $("phrase").value, "Higiene lista para tu baño o cocina comercial");
     show($("pvCta"), ctaText(), "Pedilo por WhatsApp");
-    $("pvBrand").hidden = false;
-    $("phraseCount").textContent = $("phrase").value.length + " / 70";
+    if (!logoURL) $("pvBrand").hidden = false;
+    $("phraseCount").textContent = $("phrase").value.length + " / 60";
   }
 
   ["product", "brand", "price", "phrase", "ctaCustom"].forEach(function (id) {
@@ -342,114 +386,26 @@ aside { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); displ
     r.addEventListener("change", function () { $("ad").dataset.style = r.value; });
   });
 
-  // Foto
-  function loadPhoto(file) {
+  // Foto y logo
+  var logoURL = null;
+  function loadImage(file, kind) {
     if (!file) return;
+    var hint = $(kind === "photo" ? "photoHint" : "logoHint");
     if (!/^image\/(jpeg|png|webp)$/.test(file.type)) {
-      $("photoHint").textContent = "Ese archivo no es una foto JPG, PNG o WEBP. Probá con otra.";
-      $("photoHint").style.color = "var(--danger)";
+      hint.textContent = "Ese archivo no es una imagen JPG, PNG o WEBP. Probá con otra.";
+      hint.style.color = "var(--danger)";
       return;
     }
-    if (photoURL) URL.revokeObjectURL(photoURL);
-    photoURL = URL.createObjectURL(file);
-    photoName = file.name;
+    var url = URL.createObjectURL(file);
     var img = new Image();
     img.onload = function () {
-      $("thumb").innerHTML = "";
-      $("thumb").appendChild(img.cloneNode());
+      var thumb = $(kind === "photo" ? "thumb" : "thumbLogo");
+      thumb.innerHTML = ""; thumb.appendChild(img.cloneNode());
       var big = img.cloneNode();
-      big.alt = "Foto del producto";
-      $("pvPhoto").innerHTML = "";
-      $("pvPhoto").appendChild(big);
-      $("photoTitle").textContent = "Foto cargada";
-      $("photoHint").style.color = "";
-      $("photoHint").textContent = file.name + " · " + img.naturalWidth + " × " + img.naturalHeight + " px. Tocá para cambiarla.";
-      if (img.naturalWidth < 600 || img.naturalHeight < 600) {
-        $("photoHint").textContent += " Es chica: puede verse borrosa.";
-      }
-    };
-    img.onerror = function () {
-      $("photoHint").textContent = "No se pudo abrir la foto. Probá con otra.";
-      $("photoHint").style.color = "var(--danger)";
-    };
-    img.src = photoURL;
-  }
-  $("photo").addEventListener("change", function () { loadPhoto(this.files[0]); });
-  var drop = $("drop");
-  drop.addEventListener("dragover", function (e) { e.preventDefault(); drop.classList.add("over"); });
-  drop.addEventListener("dragleave", function () { drop.classList.remove("over"); });
-  drop.addEventListener("drop", function (e) {
-    e.preventDefault(); drop.classList.remove("over");
-    loadPhoto(e.dataTransfer.files[0]);
-  });
-
-  // Movimiento y música: sin movimiento sale una imagen, y una imagen no lleva música.
-  function syncMotion() {
-    var on = $("motion").checked;
-    $("music").disabled = !on;
-    if (!on) $("music").checked = false;
-    $("musicWrap").classList.toggle("off", !on);
-    $("motionHint").textContent = on
-      ? "Sale un video MP4 de unos 6 segundos, con zoom y animaciones."
-      : "Sale una imagen JPG fija, sin animación.";
-    $("musicHint").textContent = on
-      ? "Solo pistas con licencia libre para uso comercial."
-      : "La música solo está disponible con movimiento.";
-  }
-  $("motion").addEventListener("change", syncMotion);
-
-  // Botón Generar: por ahora valida y muestra los datos exactos (la generación es la Etapa 3).
-  $("form").addEventListener("submit", function (e) {
-    e.preventDefault();
-    var box = $("result");
-    var errors = [];
-    var formats = Array.prototype.map.call(document.querySelectorAll('input[name="fmt"]:checked'), function (c) { return c.value; });
-    if (!photoURL) errors.push("Falta la foto del producto.");
-    if ($("product").value.trim() === "") errors.push("Falta el nombre del producto.");
-    if ($("price").value.trim() === "") errors.push("Falta el precio.");
-    if ($("cta").value === "__otra" && $("ctaCustom").value.trim() === "") errors.push("Escribí tu llamada a la acción o elegí una de la lista.");
-    if (formats.length === 0) errors.push("Marcá al menos un formato.");
-
-    box.hidden = false;
-    box.innerHTML = "";
-    if (errors.length) {
-      box.className = "msg err";
-      var ul = document.createElement("ul");
-      ul.style.margin = "0"; ul.style.paddingLeft = "18px";
-      errors.forEach(function (t) { var li = document.createElement("li"); li.textContent = t; ul.appendChild(li); });
-      box.appendChild(ul);
-      return;
-    }
-    box.className = "msg ok";
-    var h = document.createElement("h3");
-    h.textContent = "Datos listos. Así se van a usar:";
-    box.appendChild(h);
-    var dl = document.createElement("dl");
-    var style = document.querySelector('input[name="style"]:checked').value;
-    [
-      ["Foto", photoName],
-      ["Producto", "«" + $("product").value + "»"],
-      ["Marca", $("brand").value ? "«" + $("brand").value + "»" : "(sin marca)"],
-      ["Precio", "«" + $("price").value + "»"],
-      ["Frase", $("phrase").value ? "«" + $("phrase").value + "»" : "(sin frase)"],
-      ["Llamada", "«" + ctaText() + "»"],
-      ["Estilo", style],
-      ["Salida", $("motion").checked ? "Video MP4" + ($("music").checked ? " con música" : " sin música") : "Imagen JPG"],
-      ["Formatos", formats.join(", ")]
-    ].forEach(function (row) {
-      var dt = document.createElement("dt"); dt.textContent = row[0];
-      var dd = document.createElement("dd"); dd.textContent = row[1];
-      dl.appendChild(dt); dl.appendChild(dd);
-    });
-    box.appendChild(dl);
-    var p = document.createElement("p");
-    p.textContent = "La creación del archivo descargable se agrega en la Etapa 3. Por ahora este botón solo comprueba que no falte nada.";
-    box.appendChild(p);
-  });
-
-  update();
-  syncMotion();
-})();
-</script>
-</body>
-</html>
+      hint.style.color = "";
+      if (kind === "photo") {
+        if (photoURL) URL.revokeObjectURL(photoURL);
+        photoURL = url; photoName = file.name; photoFile = file;
+        if (cutoutURL) { URL.revokeObjectURL(cutoutURL); cutoutURL = null; }
+        $("bgRemove").checked = false; $("bgRemove").disabled = false;
+        $("bgWrap").classList.remove("off"); 

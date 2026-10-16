@@ -164,33 +164,36 @@ aside { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); displ
 .ad[data-style="minimalista"] { --ad-backdrop: radial-gradient(circle at 50% 38%, #ffffff 0%, #f1f1ee 60%, #e2e2de 100%); }
 .ad[data-style="llamativo"] { --ad-backdrop: radial-gradient(circle at 50% 38%, #ffe3df 0%, #ff8a7f 60%, #e5281c 100%); }
 .ad.cutout { background: var(--ad-backdrop); }
-.ad.cutout .ad-photo { inset: 20% 9% 34% 9%; }
+.ad.cutout .ad-photo { background: transparent; }
+.ad.cutout .ad-photo img.main { object-fit: contain; padding: 18cqw 6cqw 8cqw; }
 .ad.cutout .ad-photo img { object-fit: contain; filter: drop-shadow(0 3cqw 4cqw rgb(0 0 0 / .35)); }
 .ad[data-style="elegante"] { --ad-shade: #0e0d0b; --ad-hl: rgb(185 150 80 / .94); --ad-hl-fg: #ffffff; --ad-price-bg: #d9b56a; --ad-price-fg: #0e0d0b; --ad-brand: #6b5427; --ad-cta-bg: #0e0d0b; --ad-cta-fg: #d9b56a; --ad-head: "Fraunces", Georgia, serif; }
 .ad[data-style="tecnologico"] { --ad-shade: #06122e; --ad-hl: rgb(61 224 255 / .92); --ad-hl-fg: #04112a; --ad-price-bg: #3de0ff; --ad-price-fg: #04112a; --ad-brand: #0a2a52; --ad-cta-bg: #04112a; --ad-cta-fg: #3de0ff; }
 .ad[data-style="minimalista"] { --ad-shade: #ffffff; --ad-hl: #151515; --ad-hl-fg: #ffffff; --ad-text: #151515; --ad-tshadow: none; --ad-price-bg: #151515; --ad-price-fg: #ffffff; --ad-brand: #151515; --ad-cta-bg: #151515; --ad-cta-fg: #ffffff; }
 .ad[data-style="llamativo"] { --ad-shade: #c4140a; --ad-hl: rgb(255 225 77 / .96); --ad-hl-fg: #c4140a; --ad-price-bg: #ffe14d; --ad-price-fg: #c4140a; --ad-brand: #c4140a; --ad-cta-bg: #ffffff; --ad-cta-fg: #c4140a; }
 
-.ad-photo { position: absolute; inset: 0; display: grid; place-items: center; }
-.ad-photo img { width: 100%; height: 100%; object-fit: cover; }
-.ad-ph { position: absolute; top: 34%; left: 50%; transform: translate(-50%, -50%); width: 52%; aspect-ratio: 1; border: 0.8cqw dashed #8a93a3; border-radius: 6cqw; display: grid; place-items: center; text-align: center; font: 600 4.4cqw/1.3 var(--body); color: #5a6475; }
-.ad-shade { position: absolute; left: 0; right: 0; bottom: 0; height: 64%;
-  background: linear-gradient(to top, var(--ad-shade) 0%, color-mix(in srgb, var(--ad-shade) 80%, transparent) 38%, transparent 100%); }
+.ad-photo { position: absolute; inset: 0 0 42% 0; display: grid; place-items: center; overflow: hidden; background: #e9ecef; }
+.ad-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.ad-photo img.blur { filter: blur(6cqw) saturate(1.1); transform: scale(1.2); opacity: .85; }
+.ad.fit-contain .ad-photo img.main { object-fit: contain; padding: 17cqw 0 4cqw; }
+.ad-ph { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 52%; aspect-ratio: 1; border: 0.8cqw dashed #8a93a3; border-radius: 6cqw; display: grid; place-items: center; text-align: center; font: 600 4.4cqw/1.3 var(--body); color: #5a6475; }
+.ad-shade { position: absolute; left: 0; right: 0; bottom: 0; height: 56%;
+  background: linear-gradient(to top, var(--ad-shade) 0%, var(--ad-shade) 72%, color-mix(in srgb, var(--ad-shade) 55%, transparent) 86%, transparent 100%); }
 
 .ad-top { position: absolute; top: 7cqw; left: 0; right: 0; display: flex; justify-content: center; padding-inline: 8cqw; }
 .ad-chip { background: rgb(255 255 255 / .88); border-radius: 3cqw; padding: 2.4cqw 4.5cqw; display: flex; align-items: center; justify-content: center; max-width: 100%; }
 .ad-chip img { max-width: 44cqw; max-height: 16cqw; object-fit: contain; display: block; }
 .ad-brand { font: 800 7.5cqw/1 var(--ad-head); color: var(--ad-brand); letter-spacing: -0.01em; text-align: center; overflow-wrap: anywhere; }
 
-.ad-bottom { position: absolute; left: 0; right: 0; bottom: 0; padding: 0 6cqw 8cqw; display: flex; flex-direction: column; gap: 2cqw; }
-.ad-product { font: 800 10.5cqw/1.16 var(--ad-head); letter-spacing: -0.01em; overflow-wrap: anywhere; }
+.ad-bottom { position: absolute; left: 0; right: 0; bottom: 0; padding: 0 6cqw 7cqw; display: flex; flex-direction: column; gap: 2cqw; }
+.ad-product { font: 800 9.4cqw/1.16 var(--ad-head); letter-spacing: -0.01em; overflow-wrap: anywhere; }
 .ad-product span { background: var(--ad-hl); color: var(--ad-hl-fg); padding: 0 1.8cqw; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
-.ad-phrase { font: 800 7.4cqw/1.1 var(--ad-head); color: var(--ad-text); text-shadow: var(--ad-tshadow); overflow-wrap: anywhere; }
+.ad-phrase { font: 800 6.6cqw/1.12 var(--ad-head); color: var(--ad-text); text-shadow: var(--ad-tshadow); overflow-wrap: anywhere; }
 .ad-row { display: flex; align-items: center; justify-content: space-between; gap: 3cqw; flex-wrap: wrap; margin-top: 2.5cqw; }
-.ad-price { background: var(--ad-price-bg); color: var(--ad-price-fg); font: 800 11cqw/1 var(--ad-head); padding: 2cqw 3.6cqw; border-radius: 2.4cqw; font-variant-numeric: tabular-nums; max-width: 100%; overflow-wrap: anywhere; box-shadow: 0 1cqw 3cqw rgb(0 0 0 / .25); }
+.ad-price { background: var(--ad-price-bg); color: var(--ad-price-fg); font: 800 10.5cqw/1 var(--ad-head); padding: 2cqw 3.6cqw; border-radius: 2.4cqw; font-variant-numeric: tabular-nums; max-width: 100%; overflow-wrap: anywhere; box-shadow: 0 1cqw 3cqw rgb(0 0 0 / .25); }
 .ad-cta { background: var(--ad-cta-bg); color: var(--ad-cta-fg); border-radius: 99px; padding: 2.6cqw 4cqw; font: 700 4.2cqw/1.2 var(--body); overflow-wrap: anywhere; max-width: 100%; }
 .ad-cta::before { content: ""; display: inline-block; width: 2.6cqw; height: 2.6cqw; border-radius: 50%; background: #25d366; margin-right: 1.6cqw; vertical-align: 0.1em; }
-.ad .empty { opacity: .55; }
+.ad .empty { opacity: 1; }
 .pv-note { font-size: 0.8rem; color: var(--muted); margin: 0; }
 
 @media (max-width: 820px) {
@@ -210,7 +213,7 @@ aside { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); displ
 <header class="top">
   <div class="top-inner">
     <div class="logo"><span class="logo-mark">$</span>Generador de Anuncios</div>
-    <div class="stage">Versión 0.4 · Etapas 1 y 2</div>
+    <div class="stage">Versión 0.6 · Etapas 1 y 2</div>
   </div>
 </header>
 
@@ -243,6 +246,13 @@ aside { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); displ
           <span class="hint" id="logoHint">Ideal PNG con fondo transparente. Si no subís logo, se escribe el nombre de la marca.</span>
         </span>
       </label>
+      <div class="field">
+        <span class="label">Cómo se acomoda la foto</span>
+        <div class="styles" role="radiogroup" aria-label="Cómo se acomoda la foto">
+          <label class="opt"><input type="radio" name="fit" value="contain"><span>Mostrar la foto entera (sin recortar)</span></label>
+          <label class="opt"><input type="radio" name="fit" value="cover" checked><span>Llenar el espacio (recomendado)</span></label>
+        </div>
+      </div>
       <label class="switch off" id="bgWrap">
         <input type="checkbox" id="bgRemove" disabled>
         <span class="track"></span>
@@ -341,7 +351,7 @@ aside { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); displ
         <div class="ad-row"><div class="ad-price" id="pvPrice"></div><div class="ad-cta" id="pvCta"></div></div>
       </div>
     </div>
-    <p class="pv-note">Los textos en gris son ejemplos. Se reemplazan por los tuyos al escribir.</p>
+    <p class="pv-note" id="pvNote">Mientras un campo esté vacío, se muestra un texto de ejemplo.</p>
   </aside>
 </main>
 
@@ -435,13 +445,23 @@ aside { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); displ
   var BG_LIB = "https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.8/+esm";
 
   function showPhoto() {
+    if (!photoURL) return;
     var useCut = $("bgRemove").checked && cutoutURL;
+    var fit = document.querySelector('input[name="fit"]:checked').value;
+    $("pvPhoto").innerHTML = "";
+    if (!useCut) {
+      var back = document.createElement("img");
+      back.className = "blur"; back.alt = ""; back.src = photoURL;
+      $("pvPhoto").appendChild(back);
+    }
     var img = document.createElement("img");
-    img.alt = "Foto del producto";
+    img.className = "main"; img.alt = "Foto del producto";
     img.src = useCut ? cutoutURL : photoURL;
-    $("pvPhoto").innerHTML = ""; $("pvPhoto").appendChild(img);
+    $("pvPhoto").appendChild(img);
     $("ad").classList.toggle("cutout", !!useCut);
+    $("ad").classList.toggle("fit-contain", fit === "contain");
   }
+  document.querySelectorAll('input[name="fit"]').forEach(function (r) { r.addEventListener("change", showPhoto); });
   function bgMsg(text, isErr, pct) {
     $("bgBox").hidden = false;
     $("bgStatus").textContent = text;
@@ -545,6 +565,7 @@ aside { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); displ
     var style = document.querySelector('input[name="style"]:checked').value;
     [
       ["Foto", photoName],
+      ["Ajuste", document.querySelector('input[name="fit"]:checked').value === "contain" ? "producto entero" : "llenar el espacio"],
       ["Fondo", cutoutURL && $("bgRemove").checked ? "borrado" : "foto original"],
       ["Logo", logoURL ? "sí" : "(sin logo, se usa el nombre de la marca)"],
       ["Producto", "«" + $("product").value + "»"],
